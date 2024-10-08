@@ -17,7 +17,7 @@ tower-http = { workspace = true }
 serde_json = { workspace = true }
 axum = { workspace = true }
 tracing = { workspace = true }
-uuid = { version = "1.8.0", features = ["v7", "serde"] }
+uuid = { version = "1.10.0", features = ["v7", "serde"] }
 axum-extra = { workspace = true }
 utoipa = { version = "4.2.3", features = ["axum_extras", "chrono"] }
 thiserror.workspace = true
