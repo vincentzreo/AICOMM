@@ -69,7 +69,7 @@ impl AppState {
             }
         };
         let chat = sqlx::query_as(
-            r#"insert into chats (ws_id, name, type, members) values ($1, $2, $3, $4) returning id, ws_id, name, type, members, created_at"#,
+            r#"insert into chats (ws_id, name, type, members) values ($1, $2, $3, $4) returning id, ws_id, name, type, members, agents, created_at"#,
         )
         .bind(ws_id as i64)
         .bind(&input.name)
@@ -82,7 +82,7 @@ impl AppState {
 
     pub async fn fetch_chats(&self, user_id: u64, ws_id: u64) -> Result<Vec<Chat>, AppError> {
         let chats = sqlx::query_as(
-            r#"select id, ws_id, name, type, members, created_at from chats where ws_id = $1 AND $2 = ANY(members)"#,
+            r#"select id, ws_id, name, type, members, agents, created_at from chats where ws_id = $1 AND $2 = ANY(members)"#,
         )
         .bind(ws_id as i64)
         .bind(user_id as i64)
@@ -92,7 +92,7 @@ impl AppState {
     }
     pub async fn delete_chat_by_id(&self, id: u64) -> Result<Option<Chat>, AppError> {
         let chat = sqlx::query_as(
-            r#"delete from chats where id = $1 returning id, ws_id, name, type, members, created_at"#,
+            r#"delete from chats where id = $1 returning id, ws_id, name, type, members, agents, created_at"#,
         )
         .bind(id as i64)
         .fetch_optional(&self.pool)
@@ -124,7 +124,7 @@ impl AppState {
             };
         }
         let chat = sqlx::query_as(
-            r#"update chats set name = $1, type = $2, members = $3 where id = $4 returning id, ws_id, name, type, members, created_at"#,
+            r#"update chats set name = $1, type = $2, members = $3 where id = $4 returning id, ws_id, name, type, members, agents, created_at"#,
         )
         .bind(&old_chat.name)
         .bind(old_chat.r#type)
@@ -136,7 +136,7 @@ impl AppState {
     }
     pub async fn get_chat_by_id(&self, id: u64) -> Result<Option<Chat>, AppError> {
         let chat = sqlx::query_as(
-            r#"select id, ws_id, name, type, members, created_at from chats where id = $1"#,
+            r#"select id, ws_id, name, type, members, agents, created_at from chats where id = $1"#,
         )
         .bind(id as i64)
         .fetch_optional(&self.pool)

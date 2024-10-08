@@ -443,6 +443,7 @@ dependencies = [
  "chrono",
  "jwt-simple",
  "serde",
+ "serde_json",
  "sqlx",
  "thiserror",
  "tokio",
