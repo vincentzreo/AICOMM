@@ -181,6 +181,30 @@ export default createStore({
       localStorage.setItem('channels', JSON.stringify(this.state.channels));
       localStorage.setItem('messages', JSON.stringify(this.state.messages));
     },
+    async uploadFiles({ state, commit }, files) {
+      try {
+        const formData = new FormData();
+        // 确保 files 是一个数组
+        Array.from(files).forEach(file => {
+          formData.append(`files`, file);
+        });
+
+        const response = await axios.post(`${getUrlBase()}/upload`, formData, {
+          headers: {
+            'Authorization': `Bearer ${state.token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+
+        return response.data.map(path => ({
+          path,
+          fullUrl: `${getUrlBase()}${path}?token=${state.token}`
+        }));
+      } catch (error) {
+        console.error('文件上传失败:', error);
+        throw error;
+      }
+    },
     async sendMessage({ state, commit }, payload) {
       try {
         const response = await axios.post(`${getUrlBase()}/chats/${payload.chatId}`, payload, {

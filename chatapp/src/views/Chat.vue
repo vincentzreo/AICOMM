@@ -24,7 +24,7 @@ export default {
 <style scoped>
 .chat {
   display: flex;
-  height: 100vh; /* Full height to fit the screen */
+  height: 100vh; /* 全屏高度 */
 }
 .chat-main {
   display: flex;
@@ -34,12 +34,15 @@ export default {
 }
 .chat-main > .message-list {
   flex: 1;
-  overflow-y: auto; /* Scrollable message list */
+  overflow-y: auto; /* 可滚动的消息列表 */
+  padding-bottom: 200px; /* 为输入框留出空间 */
 }
 .chat-main > .message-send {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
+  background-color: #fff; /* 确保输入框背景不透明 */
+  z-index: 1; /* 确保输入框在消息列表上方 */
 }
 </style>
