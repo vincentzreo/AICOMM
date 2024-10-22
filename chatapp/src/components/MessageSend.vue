@@ -78,7 +78,7 @@ export default {
       if (files.length > 0) {
         try {
           const uploadedFiles = await this.$store.dispatch('uploadFiles', files);
-          this.files = uploadedFiles;
+          this.files = [...this.files, ...uploadedFiles];
         } catch (error) {
           console.error('上传图片失败:', error);
         }

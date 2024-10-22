@@ -1,0 +1,36 @@
+curl http://localhost:11434/api/chat -d '{
+  "model": "llama3.2",
+  "messages": [
+    {
+      "role": "user",
+      "content": "why is the sky blue?"
+    }
+  ]
+}'
+
+###
+curl http://localhost:11434/api/chat -d '{
+  "model": "llama3.2",
+  "messages": [
+    {
+      "role": "user",
+      "content": "why is the sky blue?"
+    }
+  ],
+  "stream": false
+}'
+
+### post ollama
+POST http://localhost:11434/api/chat
+Content-Type: application/json
+
+{
+  "model": "llama3.2",
+  "messages": [
+    {
+      "role": "user",
+      "content": "世界上最长的河流是?"
+    }
+  ],
+  "stream": false
+}
