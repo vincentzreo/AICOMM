@@ -20,6 +20,9 @@ pub enum AppError {
     #[error("create chat error: {0}")]
     CreateChatError(String),
 
+    #[error("agent not found: {0}")]
+    UpdateAgentError(String),
+
     #[error("Not found: {0}")]
     NotFound(String),
 
@@ -28,6 +31,12 @@ pub enum AppError {
 
     #[error("message create error: {0}")]
     MessageCreateError(String),
+
+    #[error("create agent error: {0}")]
+    CreateAgentError(String),
+
+    #[error("user {user_id} is not a member of chat {chat_id}")]
+    NotChatMemberError { user_id: u64, chat_id: u64 },
 
     #[error("{0}")]
     ChatFileError(String),
@@ -70,6 +79,9 @@ impl IntoResponse for AppError {
             AppError::MessageCreateError(_) => StatusCode::BAD_REQUEST,
             AppError::ChatFileError(_) => StatusCode::BAD_REQUEST,
             AppError::ChatDoesNotExist => StatusCode::NOT_FOUND,
+            AppError::CreateAgentError(_) => StatusCode::BAD_REQUEST,
+            AppError::NotChatMemberError { .. } => StatusCode::FORBIDDEN,
+            AppError::UpdateAgentError(_) => StatusCode::BAD_REQUEST,
         };
 
         (status, Json(json!(ErrorOutput::new(self.to_string())))).into_response()

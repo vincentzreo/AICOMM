@@ -198,3 +198,31 @@ Content-Type: application/json
     "email": "zzq@163.com",
     "password": "123456"
 }
+
+
+### create chat agent
+POST http://localhost:6688/api/chats/1/agents
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "name": "agent3",
+    "type": "proxy",
+    "prompt": "Hello, World!"
+}
+
+
+### update agent
+PATCH http://localhost:6688/api/chats/1/agents
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "id": 3,
+    "prompt": "You are a helpful assistant.",
+    "args": "{}"
+}
+
+### list agents
+GET http://localhost:6688/api/chats/1/agents
+Authorization: Bearer {{token}}

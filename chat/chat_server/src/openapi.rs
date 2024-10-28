@@ -1,5 +1,5 @@
 use axum::Router;
-use chat_core::{Chat, ChatType, ChatUser, Message, User, Workspace};
+use chat_core::{AgentType, Chat, ChatAgent, ChatType, ChatUser, Message, User, Workspace};
 use utoipa::{
     openapi::security::{HttpAuthScheme, HttpBuilder, SecurityScheme},
     Modify, OpenApi,
@@ -8,7 +8,9 @@ use utoipa_rapidoc::RapiDoc;
 use utoipa_redoc::{Redoc, Servable};
 use utoipa_swagger_ui::SwaggerUi;
 
-use crate::{handlers::*, CreateChat, CreateMessage, CreateUser, ListMessages, SigninUser};
+use crate::{
+    handlers::*, CreateChat, CreateMessage, CreateUser, ListMessages, SigninUser, UpdateAgent,
+};
 use crate::{AppState, ErrorOutput};
 
 pub(crate) trait OpenApiRouter {
@@ -20,6 +22,9 @@ pub(crate) trait OpenApiRouter {
     paths(
         signin_handler,
         signup_handler,
+        create_agent_handler,
+        update_agent_handler,
+        list_agent_handler,
         send_message_handler,
         list_chat_handler,
         create_chat_handler,
@@ -27,7 +32,7 @@ pub(crate) trait OpenApiRouter {
         list_message_handler,
     ),
     components(schemas(User, Chat, ChatType, ChatUser, Message, Workspace,
-        SigninUser, CreateUser, AuthOutput, ErrorOutput, CreateChat, CreateMessage, ListMessages)),
+        SigninUser, CreateUser, AuthOutput, ErrorOutput, CreateChat, CreateMessage, ListMessages, ChatAgent, UpdateAgent, AgentType)),
     modifiers(&SecurityAddon),
     tags((name="chat", description="Chat operations")),
 )]

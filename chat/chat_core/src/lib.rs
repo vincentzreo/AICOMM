@@ -67,11 +67,14 @@ pub struct ChatUser {
     pub email: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, PartialOrd, sqlx::Type, ToSchema)]
+#[derive(
+    Debug, Serialize, Deserialize, Default, Clone, PartialEq, PartialOrd, sqlx::Type, ToSchema,
+)]
 #[sqlx(type_name = "chat_type", rename_all = "snake_case")]
 #[serde(rename_all(serialize = "camelCase"))]
 pub enum ChatType {
     #[serde(alias = "single", alias = "Single")]
+    #[default]
     Single,
     #[serde(alias = "group", alias = "Group")]
     Group,
@@ -128,11 +131,14 @@ CREATE TABLE chat_agents (
 );
 */
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, PartialOrd, sqlx::Type, ToSchema)]
+#[derive(
+    Debug, Serialize, Deserialize, Default, Clone, PartialEq, PartialOrd, sqlx::Type, ToSchema,
+)]
 #[sqlx(type_name = "agent_type", rename_all = "snake_case")]
 #[serde(rename_all(serialize = "camelCase"))]
 pub enum AgentType {
     #[serde(alias = "proxy", alias = "Proxy")]
+    #[default]
     Proxy,
     #[serde(alias = "reply", alias = "Reply")]
     Reply,
@@ -144,12 +150,15 @@ pub enum AgentType {
 #[serde(rename_all = "camelCase")]
 pub struct ChatAgent {
     pub id: i64,
+    #[serde(alias = "chatId")]
     pub chat_id: i64,
     pub name: String,
     pub r#type: AgentType,
     pub prompt: String,
     pub args: sqlx::types::Json<serde_json::Value>,
+    #[serde(alias = "createdAt")]
     pub created_at: DateTime<Utc>,
+    #[serde(alias = "updatedAt")]
     pub updated_at: DateTime<Utc>,
 }
 

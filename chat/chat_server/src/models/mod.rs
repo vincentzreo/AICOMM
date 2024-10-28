@@ -1,9 +1,11 @@
+mod agent;
 mod chat;
 mod file;
 mod messages;
 mod user;
 mod workspace;
 
+pub use agent::*;
 pub use chat::*;
 pub use messages::*;
 use serde::{Deserialize, Serialize};

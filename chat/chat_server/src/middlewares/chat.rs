@@ -18,10 +18,10 @@ pub async fn verify_chat(State(state): State<AppState>, req: Request, next: Next
         .await
         .unwrap_or_default()
     {
-        let err = AppError::MessageCreateError(format!(
-            "User {} is not a member of chat {}",
-            user.id, chat_id
-        ));
+        let err = AppError::NotChatMemberError {
+            user_id: user.id as _,
+            chat_id,
+        };
         return err.into_response();
     }
     let req = Request::from_parts(parts, body);
@@ -68,7 +68,7 @@ mod tests {
             .header("Authorization", format!("Bearer {}", token))
             .body(Body::empty())?;
         let res = app.clone().oneshot(req).await?;
-        assert_eq!(res.status(), StatusCode::BAD_REQUEST);
+        assert_eq!(res.status(), StatusCode::FORBIDDEN);
 
         Ok(())
     }
