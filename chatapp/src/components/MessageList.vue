@@ -11,7 +11,7 @@
             <span class="message-user">{{ getSender(message.senderId).fullname }}</span>
             <span class="message-time">{{ formatTime(message.createdAt) }}</span>
           </div>
-          <div class="message-text">{{ message.content }}</div>
+          <div class="message-text">{{ getMessageContent(message) }}</div>
           <div v-if="message.files && message.files.length > 0" class="message-images">
             <div v-for="(file, index) in message.files" :key="index" class="image-container">
               <img :src="getFileUrl(file)"
@@ -101,6 +101,15 @@ export default {
     },
     getFileUrl(file) {
       return `${getUrlBase()}${file}?token=${this.$store.state.token}`;
+    },
+    getMessageContent(message) {
+      if (message.senderId === this.$store.state.user.id) {
+        return message.content;
+      } else {
+        return message.modifiedContent && message.modifiedContent.trim() !== ''
+          ? message.modifiedContent
+          : message.content;
+      }
     }
   },
   mounted() {
@@ -119,6 +128,7 @@ export default {
   padding: 20px;
   display: flex;
   flex-direction: column-reverse;
+  padding-bottom: 120px;
 }
 /* 单个消息样式 */
 .message {

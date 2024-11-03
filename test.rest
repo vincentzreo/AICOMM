@@ -201,12 +201,12 @@ Content-Type: application/json
 
 
 ### create chat agent
-POST http://localhost:6688/api/chats/1/agents
+POST http://localhost:6688/api/chats/2/agents
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "name": "translator",
+    "name": "translator1",
     "type": "proxy",
     "adapter": "ollama",
     "model": "llama3.2",
