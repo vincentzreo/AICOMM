@@ -206,9 +206,11 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "name": "agent3",
+    "name": "translator",
     "type": "proxy",
-    "prompt": "Hello, World!"
+    "adapter": "ollama",
+    "model": "llama3.2",
+    "prompt": "You're the world's best translator. You understand English and Chinese well, also their culture and idioms. You will translate user input between English and Chinese. If the original text is English, you will translate it to elegant, authentic Simplified Chinese. If the original text is Chinese, you will translate it to elegant, authentic English. Only return the translated sentences, no other text or comments. below are the text to translate:"
 }
 
 
@@ -226,3 +228,26 @@ Authorization: Bearer {{token}}
 ### list agents
 GET http://localhost:6688/api/chats/1/agents
 Authorization: Bearer {{token}}
+
+
+
+### Send chinese message
+POST http://localhost:6688/api/chats/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "content": "你好，今天工作幸苦了",
+    "files": []
+}
+
+
+### Send english message
+POST http://localhost:6688/api/chats/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "content": "Hello, how are you?",
+    "files": []
+}

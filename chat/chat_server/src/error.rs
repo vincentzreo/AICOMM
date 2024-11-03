@@ -55,6 +55,9 @@ pub enum AppError {
 
     #[error("http header parse error: {0}")]
     HttpHeaderError(#[from] axum::http::header::InvalidHeaderValue),
+
+    #[error("ai agent error: {0}")]
+    AiAgentError(#[from] chat_core::AgentError),
 }
 
 impl ErrorOutput {
@@ -82,6 +85,7 @@ impl IntoResponse for AppError {
             AppError::CreateAgentError(_) => StatusCode::BAD_REQUEST,
             AppError::NotChatMemberError { .. } => StatusCode::FORBIDDEN,
             AppError::UpdateAgentError(_) => StatusCode::BAD_REQUEST,
+            AppError::AiAgentError(_) => StatusCode::INTERNAL_SERVER_ERROR,
         };
 
         (status, Json(json!(ErrorOutput::new(self.to_string())))).into_response()

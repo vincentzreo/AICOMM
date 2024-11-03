@@ -13,14 +13,11 @@ use utoipa::ToSchema;
 
 #[allow(async_fn_in_trait)]
 pub trait Agent {
-    async fn process(
-        &self,
-        message: Message,
-        ctx: &AgentContext,
-    ) -> Result<AgentDecision, AgentError>;
+    async fn process(&self, message: &str, ctx: &AgentContext)
+        -> Result<AgentDecision, AgentError>;
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct AgentContext {}
 
 #[derive(Debug, Clone)]
@@ -35,6 +32,9 @@ pub enum AgentDecision {
 pub enum AgentError {
     #[error("Network error: {0}")]
     Network(String),
+
+    #[error("{0}")]
+    AnyError(#[from] anyhow::Error),
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, Clone, PartialEq, ToSchema)]
@@ -146,6 +146,17 @@ pub enum AgentType {
     Tap,
 }
 
+#[derive(
+    Debug, Serialize, Deserialize, Default, Clone, PartialEq, PartialOrd, sqlx::Type, ToSchema,
+)]
+#[sqlx(type_name = "adapter_type", rename_all = "snake_case")]
+#[serde(rename_all(serialize = "camelCase"))]
+pub enum AdapterType {
+    #[serde(alias = "ollama", alias = "Ollama")]
+    #[default]
+    Ollama,
+}
+
 #[derive(Debug, Serialize, Deserialize, FromRow, Clone, PartialEq, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct ChatAgent {
@@ -155,6 +166,8 @@ pub struct ChatAgent {
     pub name: String,
     pub r#type: AgentType,
     pub prompt: String,
+    pub adapter: AdapterType,
+    pub model: String,
     pub args: sqlx::types::Json<serde_json::Value>,
     #[serde(alias = "createdAt")]
     pub created_at: DateTime<Utc>,

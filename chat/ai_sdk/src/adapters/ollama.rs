@@ -1,7 +1,7 @@
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
-use crate::{AiService, Message};
+use crate::{AiAdapter, AiService, Message};
 
 pub struct OllamaAdapter {
     pub host: String,
@@ -34,6 +34,12 @@ pub struct OllamaChatCompletionResponse {
     pub prompt_eval_duration: u64,
     pub eval_count: u64,
     pub eval_duration: u64,
+}
+
+impl From<OllamaAdapter> for AiAdapter {
+    fn from(adapter: OllamaAdapter) -> Self {
+        Self::Ollama(adapter)
+    }
 }
 
 impl OllamaAdapter {

@@ -170,6 +170,8 @@ impl ChatServer {
                 r#"{
                 "name": "translation222",
                 "type": "proxy",
+                "adapter": "ollama",
+                "model": "llama3.2",
                 "prompt": "if content is in english, translate to chinese.if language is chinese, translate to english"
             }"#,
             )

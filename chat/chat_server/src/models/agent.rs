@@ -4,7 +4,7 @@ use utoipa::ToSchema;
 
 use crate::{AppError, AppState};
 
-use chat_core::{AgentType, ChatAgent};
+use chat_core::{AdapterType, AgentType, ChatAgent};
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone, ToSchema)]
 #[serde(rename_all = "camelCase")]
@@ -12,6 +12,8 @@ pub struct CreateAgent {
     pub name: String,
     pub r#type: AgentType,
     pub prompt: String,
+    pub adapter: AdapterType,
+    pub model: String,
     #[serde(default = "default_map")]
     pub args: serde_json::Value,
 }
@@ -24,12 +26,16 @@ impl CreateAgent {
     pub fn new(
         name: impl Into<String>,
         r#type: AgentType,
+        adapter: AdapterType,
+        model: impl Into<String>,
         prompt: impl Into<String>,
         args: impl Serialize,
     ) -> Self {
         Self {
             name: name.into(),
             r#type,
+            adapter,
+            model: model.into(),
             prompt: prompt.into(),
             args: serde_json::to_value(args).unwrap(),
         }
@@ -73,11 +79,13 @@ impl AppState {
         }
 
         let agent = sqlx::query_as(
-            r#"insert into chat_agents (chat_id, name, type, prompt, args) values ($1, $2, $3, $4, $5) returning *"#,
+            r#"insert into chat_agents (chat_id, name, type, adapter, model, prompt, args) values ($1, $2, $3, $4, $5, $6, $7) returning *"#,
         )
         .bind(chat_id as i64)
         .bind(&input.name)
         .bind(input.r#type)
+        .bind(input.adapter)
+        .bind(&input.model)
         .bind(&input.prompt)
         .bind(input.args)
         .fetch_one(&self.pool)
@@ -167,6 +175,8 @@ mod tests {
         let input = CreateAgent::new(
             "agent1",
             AgentType::Proxy,
+            AdapterType::Ollama,
+            "llama3.2",
             "You are a helpful assistant.",
             HashMap::<String, String>::new(),
         );
@@ -176,6 +186,8 @@ mod tests {
             .expect("create agent failed");
         assert_eq!(agent.name, "agent1");
         assert_eq!(agent.r#type, AgentType::Proxy);
+        assert_eq!(agent.adapter, AdapterType::Ollama);
+        assert_eq!(agent.model, "llama3.2");
         assert_eq!(agent.prompt, "You are a helpful assistant.");
         assert_eq!(agent.args, sqlx::types::Json(serde_json::json!({})));
         Ok(())
