@@ -1,0 +1,33 @@
+[package]
+name = "bot-server"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "server"
+path = "src/server.rs"
+
+[[bin]]
+name = "indexer"
+path = "src/indexer.rs"
+
+[dependencies]
+
+anyhow = { workspace = true }
+futures = "0.3.31"
+serde = { workspace = true }
+serde_yaml = { workspace = true }
+sqlx = { workspace = true }
+tokio = { workspace = true }
+tokio-stream = { version = "0.1.16", features = ["sync"] }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+chat-core = { workspace = true }
+serde_json = { workspace = true }
+swiftide = { version = "0.14.2", features = [
+    "fastembed",
+    "ollama",
+    "tree-sitter",
+    "openai",
+] }
+swiftide-pgvector = { workspace = true }

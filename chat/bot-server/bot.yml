@@ -1,0 +1,3 @@
+server:
+  port: 6689
+  db_url: postgres://postgres:postgres@localhost/chat

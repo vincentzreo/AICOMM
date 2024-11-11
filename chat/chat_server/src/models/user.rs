@@ -36,7 +36,7 @@ impl AppState {
     /// Find a user by email
     pub async fn find_user_by_email(&self, email: &str) -> Result<Option<User>, AppError> {
         let user = sqlx::query_as(
-            "select id, ws_id, fullname, email, created_at from users where email = $1",
+            "select id, ws_id, fullname, email, is_bot, created_at from users where email = $1",
         )
         .bind(email)
         .fetch_optional(&self.pool)
@@ -46,7 +46,7 @@ impl AppState {
     /// Find user by id
     pub async fn find_user_by_id(&self, id: i64) -> Result<Option<User>, AppError> {
         let user = sqlx::query_as(
-            "select id, ws_id, fullname, email, created_at from users where id = $1",
+            "select id, ws_id, fullname, email, is_bot, created_at from users where id = $1",
         )
         .bind(id)
         .fetch_optional(&self.pool)
@@ -67,13 +67,15 @@ impl AppState {
         };
 
         let password_hash = hash_password(&input.password)?;
+        let is_bot = input.email.ends_with("@bot.org");
         let mut user: User = sqlx::query_as(
-            "insert into users (ws_id, email, fullname, password_hash) values ($1, $2, $3, $4) returning id, ws_id, fullname, email, created_at",
+            "insert into users (ws_id, email, fullname, password_hash, is_bot) values ($1, $2, $3, $4, $5) returning id, ws_id, fullname, email, is_bot, created_at",
         )
         .bind(ws.id)
         .bind(&input.email)
         .bind(&input.fullname)
         .bind(password_hash)
+        .bind(is_bot)
         .fetch_one(&self.pool)
         .await?;
         user.ws_name = ws.name.clone();
@@ -95,7 +97,7 @@ impl AppState {
     /// Verify email and password
     pub async fn verify_user(&self, input: &SigninUser) -> Result<Option<User>, AppError> {
         let user: Option<User> = sqlx::query_as(
-            "select id, ws_id, fullname, email, password_hash, created_at from users where email = $1",
+            "select id, ws_id, fullname, email, is_bot, password_hash, created_at from users where email = $1",
         )
         .bind(&input.email)
         .fetch_optional(&self.pool)
