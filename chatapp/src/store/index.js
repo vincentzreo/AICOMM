@@ -3,7 +3,7 @@ import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import { getUrlBase } from '../util';
 import { initSSE } from '../util';
-
+import router from '../router';
 
 export default createStore({
   state: {
@@ -149,6 +149,11 @@ export default createStore({
           }); */
           commit('setMessageForChannel', { channelId, messages });
         } catch (error) {
+          if (error.response && error.response.status === 403) {
+            this.dispatch('logout');
+            router.push('/login');
+            return;
+          }
           console.error('Failed to fetch messages:', error);
           throw error;
         }
@@ -201,6 +206,11 @@ export default createStore({
           fullUrl: `${getUrlBase()}${path}?token=${state.token}`
         }));
       } catch (error) {
+        if (error.response && error.response.status === 403) {
+            this.dispatch('logout');
+            router.push('/login');
+            return;
+          }
         console.error('文件上传失败:', error);
         throw error;
       }
@@ -214,6 +224,11 @@ export default createStore({
         });
        /*  commit('addMessage', { channelId: payload.chatId, message: response.data }); */
       } catch (error) {
+        if (error.response && error.response.status === 403) {
+            this.dispatch('logout');
+            router.push('/login');
+            return;
+          }
         console.error('Failed to send message:', error);
         throw error;
       }
@@ -316,6 +331,11 @@ async function loadState(response, self, commit) {
     await self.dispatch('initSSE');
     return user;
   } catch (error) {
+    if (error.response && error.response.status === 403) {
+      this.dispatch('logout');
+      router.push('/login');
+      return;
+    }
     console.error('Failed to load user state:', error);
     throw error;
   }

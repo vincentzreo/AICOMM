@@ -113,6 +113,10 @@ export default {
     }
   },
   mounted() {
+    // if not active channel, choose the first channel
+    /* if (!this.activeChannelId) {
+      this.$store.dispatch('setActiveChannel', this.channel[0].id);
+    } */
     if (this.activeChannelId) {
       this.fetchMessages(this.activeChannelId);
     }
