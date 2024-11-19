@@ -1,6 +1,6 @@
 use axum::{
     extract::{FromRequestParts, Query, Request, State},
-    http::StatusCode,
+    http::{request::Parts, StatusCode},
     middleware::Next,
     response::{IntoResponse as _, Response},
 };
@@ -59,6 +59,62 @@ where
     next.run(req).await
 }
 
+pub async fn extract_user<T>(State(state): State<T>, req: Request, next: Next) -> Response
+where
+    T: Clone + Send + Sync + 'static + TokenVerify,
+{
+    let (mut parts, body) = req.into_parts();
+    let req = if let Ok(token) = extract_token(&state, &mut parts).await {
+        let mut req = Request::from_parts(parts, body);
+        let _ = set_user(&state, &token, &mut req);
+        req
+    } else {
+        Request::from_parts(parts, body)
+    };
+    next.run(req).await
+}
+
+async fn extract_token<T>(state: &T, parts: &mut Parts) -> Result<String, String>
+where
+    T: Clone + Send + Sync + 'static + TokenVerify,
+{
+    match TypedHeader::<Authorization<Bearer>>::from_request_parts(parts, &state).await {
+        Ok(TypedHeader(Authorization(bearer))) => Ok(bearer.token().to_string()),
+        Err(e) => {
+            if e.is_missing() {
+                match Query::<Params>::from_request_parts(parts, &state).await {
+                    Ok(Query(params)) => Ok(params.token),
+                    Err(e) => {
+                        let msg = format!("failed to parse authorization header: {}", e);
+                        warn!(msg);
+                        Err(msg)
+                    }
+                }
+            } else {
+                let msg = format!("failed to parse authorization header: {}", e);
+                warn!(msg);
+                Err(msg)
+            }
+        }
+    }
+}
+
+fn set_user<T>(state: &T, token: &str, req: &mut Request) -> Result<(), String>
+where
+    T: Clone + Send + Sync + 'static + TokenVerify,
+{
+    match state.verify(token) {
+        Ok(user) => {
+            req.extensions_mut().insert(user);
+            Ok(())
+        }
+        Err(e) => {
+            let msg = format!("failed to verify token: {:?}", e);
+            warn!(msg);
+            Err(msg)
+        }
+    }
+}
 #[cfg(test)]
 mod tests {
     use std::sync::Arc;
